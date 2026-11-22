@@ -1,5 +1,8 @@
 # Conversor ET58 → formato INSITE de ET50
 
+**App pública:** https://luctiv-conversor-et58-et50.streamlit.app/  
+**Código:** https://github.com/LucasVuletin/luctiv-conversor-et58-et50
+
 Aplicación Streamlit para cargar dos CSV: el INSITE de la etapa 50 como base de
 estructura y el Treatment Data Publisher (TDP) de la etapa 58 como origen de
 los valores. Genera un CSV INSITE de 51 canales con el encabezado y orden del
@@ -38,14 +41,11 @@ intervalo; el CSV descargable siempre incluye todos los registros.
 se rellena con `FDP-S1278-17 Conc` por compatibilidad de unidades. Es un proxy,
 no una lectura directa de FightR LXD ni una equivalencia química.
 
-## Publicar y compartir
+## Publicar cambios
 
-1. Crear un repositorio público de GitHub con `app.py`, `conversor.py`,
-   `esquema.py`, `grafico.py`, `requirements.txt` y este `README.md` en la raíz.
-2. En [Streamlit Community Cloud](https://share.streamlit.io/), elegir **Create app**,
-   seleccionar el repositorio y la rama, y usar `app.py` como punto de entrada.
-3. Elegir un subdominio disponible o usar el asignado. Al terminar el despliegue,
-   compartir la URL `https://<subdominio>.streamlit.app/`.
+La app está desplegada desde la rama `main`, con `app.py` como punto de entrada.
+Para actualizarla, subir los cambios al repositorio de GitHub; Streamlit
+Community Cloud volverá a desplegar la rama.
 
 No subir CSV operativos al repositorio público. Los usuarios cargan sus archivos
 desde la interfaz. Si se publica un repositorio privado, revisar la configuración
