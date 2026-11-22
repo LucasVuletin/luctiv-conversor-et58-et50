@@ -1,6 +1,6 @@
 # Conversor de variables WRST a variables para YPF
 
-**App pública:** https://luctiv-conversor-et58-et50.streamlit.app/  
+**App pública:** https://luctiv-conversor-wrst-ypf.streamlit.app/
 **Código:** https://github.com/LucasVuletin/luctiv-conversor-et58-et50
 
 Aplicación Streamlit para cargar dos CSV: uno INSITE como base de la estructura
@@ -35,8 +35,9 @@ del canal INSITE:
 | FR sólido | `FightR LXD Conc` | lb/Mgal |
 
 Cada escala se calcula por separado y empieza en cero cuando sus valores no son
-negativos. Un slider ajusta simultáneamente el rango vertical de los cinco ejes
-del 100 % al 300 % sin mezclar unidades: bajarlo acerca y subirlo deja más espacio.
+negativos. Cada uno de los cinco ejes verticales tiene su propio slider del
+100 % al 300 %: bajarlo acerca y subirlo deja más espacio. Las dos curvas de
+arena comparten el slider de lb/gal.
 El eje horizontal muestra minutos transcurridos desde la primera muestra. La
 reducción visual de series largas preserva máximos y mínimos por intervalo; el
 CSV descargable siempre incluye todos los registros.

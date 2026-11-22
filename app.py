@@ -38,13 +38,23 @@ if base is not None and archivo is not None:
                "con el orden y encabezado del CSV base.")
     st.subheader("Señales operativas en un solo gráfico")
     base_registros = registros_base(base.getvalue())
-    escala_pct = st.slider(
-        "Escala vertical de todos los ejes (%)", min_value=100, max_value=300,
-        value=150, step=10,
-        help="100 % ajusta cada eje a sus datos; bajá el valor para acercar "
-             "o subilo para dejar más espacio. "
-             "Las unidades de los cinco ejes se mantienen independientes.",
-    )
+    with st.expander("Escalas de los ejes verticales", expanded=True):
+        st.caption("Cada eje tiene su propia escala. 100 % ajusta a los datos; "
+                   "bajá para acercar o subí para dejar más espacio.")
+        eje_presion, eje_caudal, eje_arena = st.columns(3)
+        eje_fr_liquido, eje_fr_solido = st.columns(2)
+        escala_presion = eje_presion.slider("Presión (psi)", 100, 300, 150, 10)
+        escala_caudal = eje_caudal.slider("Caudal (bpm)", 100, 300, 150, 10)
+        escala_arena = eje_arena.slider("Arena (lb/gal)", 100, 300, 150, 10)
+        escala_fr_liquido = eje_fr_liquido.slider("FR líquido (gal/Mgal)", 100, 300, 150, 10)
+        escala_fr_solido = eje_fr_solido.slider("FR sólido (lb/Mgal)", 100, 300, 150, 10)
+    escalas = {
+        "y": escala_presion / 100,
+        "y2": escala_caudal / 100,
+        "y3": escala_arena / 100,
+        "y4": escala_fr_liquido / 100,
+        "y5": escala_fr_solido / 100,
+    }
     opciones = ["Archivo convertido para YPF"]
     if base_registros:
         opciones.append("Archivo base para YPF")
@@ -54,8 +64,8 @@ if base is not None and archivo is not None:
     try:
         st.plotly_chart(
             crear_grafico(datos_grafico, seleccion, proxy_fr=convertido,
-                          escala=escala_pct / 100),
-            use_container_width=True,
+                          escalas=escalas),
+            width="stretch",
             config={"displaylogo": False},
         )
     except ValueError as error:
@@ -100,7 +110,7 @@ if base is not None and archivo is not None:
     with st.expander("Vista previa de los valores generados"):
         columnas = [0, 2, 6, 14, 15, 23, 31, 34]
         st.dataframe([{nombres[i]: f[i] for i in columnas} for f in registros[:30]],
-                     use_container_width=True, hide_index=True)
+                     width="stretch", hide_index=True)
         st.caption("Se muestran las primeras 30 filas; el CSV descargable incluye todos los registros.")
 
     st.info("**Trazabilidad:** los canales sin medición en el origen se dejan en 0 "

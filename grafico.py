@@ -60,7 +60,7 @@ def _rango(series, escala=1.0):
     return [(minimo - margen) * escala, (maximo + margen) * escala]
 
 
-def crear_grafico(registros, titulo, proxy_fr=True, escala=1.0):
+def crear_grafico(registros, titulo, proxy_fr=True, escalas=None):
     """Superpone seis señales sobre cinco ejes con sus unidades originales."""
     puntos = [
         (x, fila) for fila in registros
@@ -69,6 +69,7 @@ def crear_grafico(registros, titulo, proxy_fr=True, escala=1.0):
     ]
     if not puntos:
         raise ValueError("No hay muestras con tiempo válido para graficar.")
+    escalas = escalas or {}
     inicio = puntos[0][0]
     x = [punto[0] - inicio for punto in puntos]
     ejes = {"y": [], "y2": [], "y3": [], "y4": [], "y5": []}
@@ -91,26 +92,31 @@ def crear_grafico(registros, titulo, proxy_fr=True, escala=1.0):
         xaxis={"title": "Tiempo transcurrido (min)", "domain": [0.19, 0.67],
                "showgrid": True, "gridcolor": "#e8edf2"},
         yaxis={"title": {"text": "Presión (psi)", "font": {"color": "#e45756"}},
-               "range": _rango(ejes["y"], escala), "tickfont": {"color": "#e45756"},
+               "range": _rango(ejes["y"], escalas.get("y", 1.0)),
+               "tickfont": {"color": "#e45756"},
                "tickformat": ",.0f", "nticks": 6},
         yaxis2={"title": {"text": "Caudal (bpm)", "font": {"color": "#277da1"}},
-                "range": _rango(ejes["y2"], escala), "tickformat": ",.1f", "nticks": 6,
+                "range": _rango(ejes["y2"], escalas.get("y2", 1.0)),
+                "tickformat": ",.1f", "nticks": 6,
                 "overlaying": "y", "side": "right", "anchor": "free", "position": 0.67,
                 "tickfont": {"color": "#277da1"},
                 "showgrid": False},
         yaxis3={"title": {"text": "Arena (lb/gal)", "font": {"color": "#f8961e"}},
-                "range": _rango(ejes["y3"], escala), "tickformat": ",.2f", "nticks": 6,
+                "range": _rango(ejes["y3"], escalas.get("y3", 1.0)),
+                "tickformat": ",.2f", "nticks": 6,
                 "overlaying": "y", "side": "left", "anchor": "free", "position": 0.07,
                 "tickfont": {"color": "#f8961e"},
                 "showgrid": False},
         yaxis4={"title": {"text": "FR líquido (gal/Mgal)", "font": {"color": "#43aa8b"}},
-                "range": _rango(ejes["y4"], escala), "tickformat": ",.1f", "nticks": 6,
+                "range": _rango(ejes["y4"], escalas.get("y4", 1.0)),
+                "tickformat": ",.1f", "nticks": 6,
                 "overlaying": "y", "side": "right", "anchor": "free", "position": 0.80,
                 "tickfont": {"color": "#43aa8b"},
                 "showgrid": False},
         yaxis5={"title": {"text": "FR sólido proxy (lb/Mgal)" if proxy_fr
                            else "FR sólido (lb/Mgal)", "font": {"color": "#9b5de5"}},
-                "range": _rango(ejes["y5"], escala), "tickformat": ",.1f", "nticks": 6,
+                "range": _rango(ejes["y5"], escalas.get("y5", 1.0)),
+                "tickformat": ",.1f", "nticks": 6,
                 "overlaying": "y", "side": "right", "anchor": "free", "position": 0.93,
                 "tickfont": {"color": "#9b5de5"},
                 "showgrid": False},

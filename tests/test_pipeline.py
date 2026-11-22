@@ -66,17 +66,23 @@ class PipelineTest(unittest.TestCase):
         self.assertEqual(grafico.layout.xaxis.title.text,
                          "Tiempo transcurrido (min)")
 
-    def test_slider_amplia_cada_eje_sin_cambiar_unidades(self):
+    def test_sliders_ajustan_un_eje_sin_alterar_los_demas(self):
         origen, base = _archivos()
         _, filas, _ = convertir_csv(origen, base)
-        normal = crear_grafico(filas, "Convertido", escala=1.0)
-        amplio = crear_grafico(filas, "Convertido", escala=2.0)
-        for nombre in ("yaxis", "yaxis2", "yaxis3", "yaxis4", "yaxis5"):
-            eje_normal = getattr(normal.layout, nombre)
-            eje_amplio = getattr(amplio.layout, nombre)
-            self.assertAlmostEqual(eje_amplio.range[1], eje_normal.range[1] * 2)
-            self.assertEqual(eje_amplio.title.text, eje_normal.title.text)
-        self.assertIn("psi", amplio.data[0].hovertemplate)
+        normal = crear_grafico(filas, "Convertido")
+        ids = ("y", "y2", "y3", "y4", "y5")
+        for eje_modificado in ids:
+            ajustado = crear_grafico(
+                filas, "Convertido", escalas={eje_modificado: 2.0}
+            )
+            for eje in ids:
+                nombre = "yaxis" if eje == "y" else f"yaxis{eje[1:]}"
+                original = getattr(normal.layout, nombre)
+                nuevo = getattr(ajustado.layout, nombre)
+                factor = 2 if eje == eje_modificado else 1
+                self.assertAlmostEqual(nuevo.range[1], original.range[1] * factor)
+                self.assertEqual(nuevo.title.text, original.title.text)
+        self.assertIn("psi", ajustado.data[0].hovertemplate)
 
     def test_base_incompatible_se_rechaza(self):
         origen, base = _archivos()
