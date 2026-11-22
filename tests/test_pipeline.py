@@ -4,7 +4,7 @@ import csv
 import io
 import unittest
 
-from conversor import DIRECTOS, convertir_csv, leer_csv, nombre_descarga
+from conversor import DIRECTOS, convertir_csv, indicadores, leer_csv, nombre_descarga
 from esquema import ESQUEMA_INSITE
 from grafico import crear_grafico, _reducir_extremos
 
@@ -96,6 +96,13 @@ class PipelineTest(unittest.TestCase):
         self.assertEqual(nombre, "YPF.Nq.ELG-137(h)_ET58_FORMATO_YPF.csv")
         self.assertNotIn("SIMUL", nombre.upper())
         self.assertNotIn("ZIPPER", nombre.upper())
+
+    def test_indicadores_arena_lb_y_volumen_sucio_gal(self):
+        origen, base = _archivos()
+        _, filas, _ = convertir_csv(origen, base)
+        kpi = indicadores(filas)
+        self.assertEqual(kpi["arena_total_lb"], 300)
+        self.assertEqual(kpi["volumen_sucio_gal"], 420)
 
     def test_reduccion_conserva_pico(self):
         x = list(range(12000))

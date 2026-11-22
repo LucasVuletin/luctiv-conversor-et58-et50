@@ -81,13 +81,13 @@ if base is not None and archivo is not None:
     col2.metric("Presión promedio bombeando", f"{kpi['presion_prom_psi']:,.0f} psi")
     col3.metric("Concentración promedio con arena", f"{kpi['conc_arena_prom_lbgal']:,.2f} lb/gal")
     col4, col5, col6 = st.columns(3)
-    col4.metric("Arena total", f"{kpi['arena_total_tn']:,.1f} toneladas")
-    col5.metric("Volumen slurry acumulado", f"{kpi['volumen_slurry_bbl']:,.0f} bbl")
+    col4.metric("Arena total", f"{kpi['arena_total_lb']:,.0f} lb")
+    col5.metric("Volumen sucio acumulado", f"{kpi['volumen_sucio_gal']:,.0f} gal")
     col6.metric("Tiempo bombeando", f"{kpi['duracion_bombeo_min']:,.1f} min")
 
     st.caption("Promedios de caudal y presión: sólo muestras con CAUDAL_SLURRY > 5 bpm. "
                "Concentración: además, CONC_SLURRY > 0,05 lb/gal. "
-               "Arena: AS_TOTAL (100×lb) convertido a toneladas métricas. "
+               "Arena: AS_TOTAL × 100 lb. Volumen sucio: VOL_TOT_SUCIO en gal. "
                "Duración bombeando: muestras a 1 Hz / 60.")
 
     st.subheader("Controles de consistencia")

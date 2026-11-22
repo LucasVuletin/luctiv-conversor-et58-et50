@@ -42,6 +42,9 @@ El eje horizontal muestra minutos transcurridos desde la primera muestra. La
 reducción visual de series largas preserva máximos y mínimos por intervalo; el
 CSV descargable siempre incluye todos los registros.
 
+Las tarjetas muestran la arena total en libras (`AS_TOTAL × 100`) y el volumen
+sucio acumulado en galones (`VOL_TOT_SUCIO`).
+
 **Advertencia de interpretación:** en el archivo convertido, el canal de FR sólido
 se rellena con `FDP-S1278-17 Conc` por compatibilidad de unidades. Es un proxy,
 no una lectura directa de FightR LXD ni una equivalencia química.

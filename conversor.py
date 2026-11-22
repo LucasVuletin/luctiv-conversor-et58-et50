@@ -174,6 +174,7 @@ def indicadores(registros):
         "arena_integrada_lb": arena_integrada_lb,
         "error_arena_pct": error,
         "volumen_limpio_bbl": max(numero(f[14]) for f in registros) / 42,
+        "volumen_sucio_gal": max(numero(f[15]) for f in registros),
         "volumen_slurry_bbl": max(numero(f[15]) for f in registros) / 42,
         "duracion_bombeo_min": len(bombeando) / 60,
         "duracion_total_min": (datetime.strptime(registros[-1][0], FMT_HORA) - datetime.strptime(registros[0][0], FMT_HORA)).total_seconds() / 60,
