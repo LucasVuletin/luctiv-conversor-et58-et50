@@ -1,27 +1,28 @@
 """Ejecutar: streamlit run app.py"""
-import re
 import streamlit as st
-from conversor import convertir_csv, indicadores
+from conversor import convertir_csv, indicadores, nombre_descarga
 from grafico import crear_grafico, registros_base
 
-st.set_page_config(page_title="Conversor ET58 → ET50", page_icon="🛢️", layout="wide")
-st.title("Conversor de datos de fractura · ET58 → ET50")
-st.caption("TDP de la etapa 58 → estructura INSITE de la etapa 50 · 51 canales")
+st.set_page_config(page_title="Variables WRST → YPF", page_icon="🛢️", layout="wide")
+st.title("Conversor de variables WRST a variables para YPF")
+st.caption("CSV WRST → estructura INSITE del CSV base para YPF")
 
 izquierda, derecha = st.columns(2)
 with izquierda:
     base = st.file_uploader(
-        "1. CSV de la etapa 50 (base INSITE)", type=["csv"], key="base",
+        "1. CSV base para YPF (INSITE)", type=["csv"], key="base",
         help="Se usan sus 15 filas de encabezado, nombres, unidades y orden de canales.",
     )
 with derecha:
     archivo = st.file_uploader(
-        "2. CSV de la etapa 58 (Treatment Data Publisher)", type=["csv"], key="origen",
+        "2. CSV WRST a convertir (Treatment Data Publisher)",
+        type=["csv"], key="origen",
     )
 with st.expander("Configuración y origen de los datos"):
     desfase = st.number_input("Desfase de UTC (horas)", min_value=-12, max_value=14, value=-3)
-    st.caption("El archivo base debe tener el esquema INSITE de 51 canales. "
-               "Los factores estimados proceden de la conversión previa del ELG-137 ET58.")
+    st.caption("El archivo base debe tener el esquema INSITE de 51 columnas físicas. "
+               "El TDP de referencia tiene 70 columnas físicas. "
+               "Los factores estimados proceden de la homologación previa del ELG-137.")
 
 if base is not None and archivo is not None:
     try:
@@ -37,15 +38,23 @@ if base is not None and archivo is not None:
                "con el orden y encabezado del CSV base.")
     st.subheader("Señales operativas en un solo gráfico")
     base_registros = registros_base(base.getvalue())
-    opciones = ["ET58 convertido"]
+    escala_pct = st.slider(
+        "Escala vertical de todos los ejes (%)", min_value=100, max_value=300,
+        value=150, step=10,
+        help="100 % ajusta cada eje a sus datos; bajá el valor para acercar "
+             "o subilo para dejar más espacio. "
+             "Las unidades de los cinco ejes se mantienen independientes.",
+    )
+    opciones = ["Archivo convertido para YPF"]
     if base_registros:
-        opciones.append("ET50 base")
+        opciones.append("Archivo base para YPF")
     seleccion = st.radio("Datos a visualizar", opciones, horizontal=True)
-    datos_grafico = registros if seleccion == "ET58 convertido" else base_registros
+    convertido = seleccion == "Archivo convertido para YPF"
+    datos_grafico = registros if convertido else base_registros
     try:
         st.plotly_chart(
-            crear_grafico(datos_grafico, seleccion,
-                          proxy_fr=seleccion == "ET58 convertido"),
+            crear_grafico(datos_grafico, seleccion, proxy_fr=convertido,
+                          escala=escala_pct / 100),
             use_container_width=True,
             config={"displaylogo": False},
         )
@@ -53,7 +62,8 @@ if base is not None and archivo is not None:
         st.warning(f"No se pudo graficar: {error}")
     st.caption("Los dos canales de arena comparten el eje lb/gal. Presión, caudal, "
                "FR líquido y FR sólido tienen escalas independientes con sus propias unidades. "
-               "En ET58, FR sólido es un **proxy FDP-S1278-17**, no una medición de FightR LXD.")
+               "En el archivo convertido, FR sólido es un **proxy FDP-S1278-17**, "
+               "no una medición de FightR LXD.")
 
     st.subheader("Indicadores operativos · calculados sobre el CSV final")
     col1, col2, col3 = st.columns(3)
@@ -83,11 +93,7 @@ if base is not None and archivo is not None:
                    "retrocede o la integración de arena difiere ≥1 %. "
                    "El control de integración presupone muestras a 1 Hz.")
 
-    etapa = re.search(r"_(\d+)_", archivo.name)
-    numero_etapa = etapa.group(1) if etapa else "XX"
-    pozo = re.search(r"ELG-\d+(?:\([^)]*\))?", archivo.name, re.I)
-    nombre_pozo = pozo.group() if pozo else "POZO"
-    nombre_salida = f"YPF.Nq.{nombre_pozo}_ET{numero_etapa}_FORMATO_ET50_SIMUL.csv"
+    nombre_salida = nombre_descarga(archivo.name)
     st.download_button("⬇️ Descargar CSV terminado (51 columnas)", contenido,
                        file_name=nombre_salida, mime="text/csv", type="primary")
 
@@ -100,6 +106,6 @@ if base is not None and archivo is not None:
     st.info("**Trazabilidad:** los canales sin medición en el origen se dejan en 0 "
             "(no equivale a una lectura de sensor). Algunos canales se estiman a partir "
             "de los factores previos. 'FightR LXD' usa FDP-S1278-17 por compatibilidad de unidades, "
-            "no por equivalencia química. La salida está marcada SIMUL.")
+            "no por equivalencia química.")
 else:
-    st.info("Subí el CSV base de la etapa 50 y el TDP de la etapa 58 para convertir y graficar.")
+    st.info("Subí el CSV base para YPF y el TDP WRST para convertir y graficar.")

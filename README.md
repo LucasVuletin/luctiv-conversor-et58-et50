@@ -1,12 +1,13 @@
-# Conversor ET58 → formato INSITE de ET50
+# Conversor de variables WRST a variables para YPF
 
 **App pública:** https://luctiv-conversor-et58-et50.streamlit.app/  
 **Código:** https://github.com/LucasVuletin/luctiv-conversor-et58-et50
 
-Aplicación Streamlit para cargar dos CSV: el INSITE de la etapa 50 como base de
-estructura y el Treatment Data Publisher (TDP) de la etapa 58 como origen de
-los valores. Genera un CSV INSITE de 51 canales con el encabezado y orden del
-archivo base. La salida lleva la marca `SIMUL`.
+Aplicación Streamlit para cargar dos CSV: uno INSITE como base de la estructura
+para YPF y uno WRST de Treatment Data Publisher (TDP) como origen de los valores.
+Genera un CSV INSITE de 51 columnas físicas con el encabezado y orden del
+archivo base. El nombre descargado conserva pozo y etapa, y termina en
+`_FORMATO_YPF.csv`.
 
 ## Ejecutar en local
 
@@ -15,14 +16,14 @@ python -m pip install -r requirements.txt
 streamlit run app.py
 ```
 
-En la página, cargar primero el CSV INSITE de ET50 y después el CSV TDP de ET58.
+En la página, cargar primero el CSV INSITE base y después el CSV WRST/TDP.
 La app no necesita rutas locales a los datos: los archivos se suben en la sesión.
 Descargar el CSV generado después de revisar el gráfico y los controles.
 
 ## Gráfico
 
-Hay un solo gráfico para todas las señales. Permite alternar entre ET58 convertido
-y ET50 base cuando el archivo base contiene muestras. Cada eje conserva la unidad
+Hay un solo gráfico para todas las señales. Permite alternar entre el archivo
+convertido y el base cuando éste contiene muestras. Cada eje conserva la unidad
 del canal INSITE:
 
 | Señal | Canal | Eje |
@@ -34,10 +35,13 @@ del canal INSITE:
 | FR sólido | `FightR LXD Conc` | lb/Mgal |
 
 Cada escala se calcula por separado y empieza en cero cuando sus valores no son
-negativos. La reducción visual de series largas preserva máximos y mínimos por
-intervalo; el CSV descargable siempre incluye todos los registros.
+negativos. Un slider ajusta simultáneamente el rango vertical de los cinco ejes
+del 100 % al 300 % sin mezclar unidades: bajarlo acerca y subirlo deja más espacio.
+El eje horizontal muestra minutos transcurridos desde la primera muestra. La
+reducción visual de series largas preserva máximos y mínimos por intervalo; el
+CSV descargable siempre incluye todos los registros.
 
-**Advertencia de interpretación:** en la conversión de ET58, el canal de FR sólido
+**Advertencia de interpretación:** en el archivo convertido, el canal de FR sólido
 se rellena con `FDP-S1278-17 Conc` por compatibilidad de unidades. Es un proxy,
 no una lectura directa de FightR LXD ni una equivalencia química.
 
@@ -53,10 +57,11 @@ de visibilidad de la app antes de compartir el enlace.
 
 ## Formato y límites
 
-- El CSV base debe seguir el esquema INSITE de 51 canales, con 15 filas de
+- El CSV base debe seguir el esquema INSITE de 51 columnas, con 15 filas de
   preámbulo y los nombres/unidades esperados en todas las posiciones.
-- El origen TDP debe contener los canales usados por el conversor. Las filas de
-  eventos de tres campos se omiten.
+- El TDP de referencia contiene 70 columnas físicas; el origen debe incluir
+  los canales usados por el conversor. Las filas de eventos de tres campos se
+  omiten.
 - Se mantiene el orden, nombres y unidades del archivo base. El preámbulo
   conserva su estructura, pero actualiza pozo, fecha, identificador y zona
   horaria. Las muestras se desplazan desde UTC según el valor configurado

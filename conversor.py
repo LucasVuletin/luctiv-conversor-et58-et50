@@ -51,6 +51,15 @@ def texto_num(valor):
     return f"{valor:.10g}"
 
 
+def nombre_descarga(nombre_origen):
+    """Conserva pozo y etapa del nombre de origen y marca el formato YPF."""
+    etapa = re.search(r"_(\d+)_", nombre_origen)
+    numero_etapa = etapa.group(1) if etapa else "XX"
+    pozo = re.search(r"ELG-\d+(?:\([^)]*\))?", nombre_origen, re.I)
+    nombre_pozo = pozo.group() if pozo else "POZO"
+    return f"YPF.Nq.{nombre_pozo}_ET{numero_etapa}_FORMATO_YPF.csv"
+
+
 def convertir_csv(origen, plantilla, desfase_horas=-3):
     """Devuelve (bytes CSV compatibles, registros finales, nombres columnas).
 

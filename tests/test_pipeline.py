@@ -4,7 +4,7 @@ import csv
 import io
 import unittest
 
-from conversor import DIRECTOS, convertir_csv, leer_csv
+from conversor import DIRECTOS, convertir_csv, leer_csv, nombre_descarga
 from esquema import ESQUEMA_INSITE
 from grafico import crear_grafico, _reducir_extremos
 
@@ -63,6 +63,20 @@ class PipelineTest(unittest.TestCase):
         self.assertEqual(grafico.layout.yaxis.range[0], 0)
         self.assertEqual(grafico.layout.yaxis5.title.text,
                          "FR sólido proxy (lb/Mgal)")
+        self.assertEqual(grafico.layout.xaxis.title.text,
+                         "Tiempo transcurrido (min)")
+
+    def test_slider_amplia_cada_eje_sin_cambiar_unidades(self):
+        origen, base = _archivos()
+        _, filas, _ = convertir_csv(origen, base)
+        normal = crear_grafico(filas, "Convertido", escala=1.0)
+        amplio = crear_grafico(filas, "Convertido", escala=2.0)
+        for nombre in ("yaxis", "yaxis2", "yaxis3", "yaxis4", "yaxis5"):
+            eje_normal = getattr(normal.layout, nombre)
+            eje_amplio = getattr(amplio.layout, nombre)
+            self.assertAlmostEqual(eje_amplio.range[1], eje_normal.range[1] * 2)
+            self.assertEqual(eje_amplio.title.text, eje_normal.title.text)
+        self.assertIn("psi", amplio.data[0].hovertemplate)
 
     def test_base_incompatible_se_rechaza(self):
         origen, base = _archivos()
@@ -70,6 +84,12 @@ class PipelineTest(unittest.TestCase):
         filas[14][39] = "(gal/Mgal)"
         with self.assertRaisesRegex(ValueError, "esquema INSITE"):
             convertir_csv(origen, _csv_bytes(filas))
+
+    def test_nombre_descarga_conserva_pozo_y_etapa(self):
+        nombre = nombre_descarga("ELG-137(h)_58_202611211151.csv")
+        self.assertEqual(nombre, "YPF.Nq.ELG-137(h)_ET58_FORMATO_YPF.csv")
+        self.assertNotIn("SIMUL", nombre.upper())
+        self.assertNotIn("ZIPPER", nombre.upper())
 
     def test_reduccion_conserva_pico(self):
         x = list(range(12000))
